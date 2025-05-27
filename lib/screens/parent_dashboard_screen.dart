@@ -32,6 +32,8 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
         'name': name,
         'age': age,
         'password': password,
+        'points': 0,
+        'readBooks': [],
         'createdAt': FieldValue.serverTimestamp(),
       });
 
@@ -43,6 +45,7 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
       _ageController.clear();
       _passwordController.clear();
       Navigator.pop(context);
+      setState(() {}); // Listeyi yenile
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Hata oluştu: $e')),
@@ -92,6 +95,30 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
     );
   }
 
+  Widget _buildStudentCard(Map<String, dynamic> student) {
+    return Card(
+      elevation: 4,
+      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+      child: ListTile(
+        leading: const Icon(Icons.person, size: 40, color: Colors.blue),
+        title: Text(student['name'] ?? 'İsimsiz'),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text('Yaş: ${student['age'] ?? '-'}'),
+            Text('Puan: ${student['points'] ?? 0}'),
+            Text('Okunan kitap: ${student['readBooks']?.length ?? 0}'),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future<List<Map<String, dynamic>>> _getAllStudents() async {
+    final snapshot = await _firestore.collection('students').get();
+    return snapshot.docs.map((doc) => doc.data()).toList();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -99,35 +126,34 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
         title: const Text('Veli Paneli'),
         backgroundColor: Colors.blue[700],
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.family_restroom, size: 100, color: Colors.blue),
-            const SizedBox(height: 20),
-            const Text(
-              'Hoş geldiniz, Sayın Veli!',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 10),
-            const Text(
-              'Buradan çocuğunuzun okuma durumunu takip edebilirsiniz.',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 16),
-            ),
-            const SizedBox(height: 40),
-            ElevatedButton.icon(
-              onPressed: _showAddStudentDialog,
-              icon: const Icon(Icons.person_add),
-              label: const Text('Öğrenci Ekle'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.blue[700],
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-                textStyle: const TextStyle(fontSize: 16),
+      body: FutureBuilder<List<Map<String, dynamic>>>(
+        future: _getAllStudents(),
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          }
+
+          final students = snapshot.data ?? [];
+
+          return ListView(
+            children: [
+              const SizedBox(height: 16),
+              Center(
+                child: ElevatedButton.icon(
+                  onPressed: _showAddStudentDialog,
+                  icon: const Icon(Icons.person_add),
+                  label: const Text('Öğrenci Ekle'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue[700],
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                  ),
+                ),
               ),
-            ),
-          ],
-        ),
+              const SizedBox(height: 16),
+              ...students.map((student) => _buildStudentCard(student)).toList(),
+            ],
+          );
+        },
       ),
     );
   }

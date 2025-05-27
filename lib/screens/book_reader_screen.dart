@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class BookReaderScreen extends StatefulWidget {
   final String title;
@@ -15,6 +16,13 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
   String? _message;
   Color _messageColor = Colors.green;
 
+  // Kitap kelime sayıları (dilersen kitaplara göre burayı genişlet)
+  final Map<String, int> _bookWordCounts = {
+    'Kırmızı Başlıklı Kız': 140,
+    'Pamuk Prenses': 180,
+    'Hansel ve Gretel': 200,
+  };
+
   Future<void> _markBookAsRead() async {
     setState(() {
       _isLoading = true;
@@ -22,24 +30,45 @@ class _BookReaderScreenState extends State<BookReaderScreen> {
     });
 
     final firestore = FirebaseFirestore.instance;
+    final String studentName = 'aras'; // 🔁 Şimdilik sabit, ileride oturumdan alınacak
 
     try {
       final studentQuery = await firestore
           .collection('students')
-          .where('name', isEqualTo: 'aras') // 👈 ÖĞRENCİ ADI (şu an sabit)
+          .where('name', isEqualTo: studentName)
           .get();
 
       if (studentQuery.docs.isNotEmpty) {
         final studentDoc = studentQuery.docs.first;
         final data = studentDoc.data();
+        final docRef = firestore.collection('students').doc(studentDoc.id);
+
         final currentPoints = data.containsKey('points') ? data['points'] : 0;
         final List<dynamic> readBooks =
             data.containsKey('readBooks') ? List.from(data['readBooks']) : [];
+        final List<dynamic> readingLogs =
+            data.containsKey('readingLogs') ? List.from(data['readingLogs']) : [];
 
         if (!readBooks.contains(widget.title)) {
-          await firestore.collection('students').doc(studentDoc.id).update({
+          // 🔢 Kelime sayısı ve süreyi al
+          final wordCount = _bookWordCounts[widget.title] ?? 100;
+          final readMinutes = (wordCount / 25).round(); // Tahmini okuma süresi
+
+          // 📅 Bugünün tarihi (YIL-AY-GÜN formatında)
+          final today = DateFormat('yyyy-MM-dd').format(DateTime.now());
+
+          // 🔖 Yeni okuma kaydı oluştur
+          final newLog = {
+            'date': today,
+            'book': widget.title,
+            'words': wordCount,
+            'minutes': readMinutes,
+          };
+
+          await docRef.update({
             'points': currentPoints + 10,
             'readBooks': [...readBooks, widget.title],
+            'readingLogs': [...readingLogs, newLog],
           });
 
           setState(() {
