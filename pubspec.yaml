@@ -1,0 +1,43 @@
+name: kitap_okuma_app
+description: İlkokul öğrencileri için kitap okuma uygulaması
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  cupertino_icons: ^1.0.2
+  firebase_core: ^2.18.0
+  firebase_auth: ^4.11.1
+  cloud_firestore: ^4.9.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+  flutterfire_cli: ^1.2.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    # Giriş ekranı görseli
+    - assets/images/login_logo.png
+
+    # Kitap görselleri
+    - assets/books/book1.png
+    - assets/books/book2.png
+    - assets/books/book3.png
+
+    # Avatar görselleri
+    - assets/avatars/avatar1.png
+    - assets/avatars/avatar2.png
+    - assets/avatars/avatar3.png
+
+  fonts:
+    - family: ComicNeue
+      fonts:
+        - asset: assets/fonts/ComicNeue-Regular.ttf

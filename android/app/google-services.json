@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "132808024282",
+    "project_id": "kitapokumaapp-cb587",
+    "storage_bucket": "kitapokumaapp-cb587.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:132808024282:android:fcf7eee4cbe0b368bd85e3",
+        "android_client_info": {
+          "package_name": "com.example.kitap_okuma_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD9tWttlRK0cjUUczp6sN9kPnICyQcBePU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
