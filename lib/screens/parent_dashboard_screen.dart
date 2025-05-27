@@ -34,6 +34,7 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
         'password': password,
         'points': 0,
         'readBooks': [],
+        'readingLogs': [], // readingLogs alanını ekleyelim
         'createdAt': FieldValue.serverTimestamp(),
       });
 
@@ -95,11 +96,29 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
     );
   }
 
+  Widget _buildReadingLogs(List<dynamic> logs) {
+    if (logs.isEmpty) {
+      return const Text('Henüz okuma kaydı yok');
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: logs.map<Widget>((log) {
+        return Padding(
+          padding: const EdgeInsets.symmetric(vertical: 2),
+          child: Text(
+              '${log["date"] ?? "-"}: "${log["book"] ?? "-"}" - Kelime: ${log["words"] ?? 0}, Süre: ${log["minutes"] ?? 0} dk'),
+        );
+      }).toList(),
+    );
+  }
+
   Widget _buildStudentCard(Map<String, dynamic> student) {
+    final readingLogs = student['readingLogs'] as List<dynamic>? ?? [];
+
     return Card(
       elevation: 4,
       margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-      child: ListTile(
+      child: ExpansionTile(
         leading: const Icon(Icons.person, size: 40, color: Colors.blue),
         title: Text(student['name'] ?? 'İsimsiz'),
         subtitle: Column(
@@ -108,8 +127,12 @@ class _ParentDashboardScreenState extends State<ParentDashboardScreen> {
             Text('Yaş: ${student['age'] ?? '-'}'),
             Text('Puan: ${student['points'] ?? 0}'),
             Text('Okunan kitap: ${student['readBooks']?.length ?? 0}'),
+            const SizedBox(height: 6),
+            const Text('Okuma Kayıtları:', style: TextStyle(fontWeight: FontWeight.bold)),
+            _buildReadingLogs(readingLogs),
           ],
         ),
+        children: [],
       ),
     );
   }

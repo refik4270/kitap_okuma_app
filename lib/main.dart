@@ -1,15 +1,15 @@
-import 'package:kitap_okuma_app/screens/book_reader_screen.dart';
-import 'package:kitap_okuma_app/screens/student_dashboard_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
+import 'package:kitap_okuma_app/screens/student_dashboard_screen.dart';
 import 'package:kitap_okuma_app/screens/login_screen.dart';
 import 'package:kitap_okuma_app/screens/email_verification_screen.dart';
 import 'package:kitap_okuma_app/screens/guest_screen.dart';
 import 'package:kitap_okuma_app/screens/parent_dashboard_screen.dart';
 import 'package:kitap_okuma_app/screens/teacher_dashboard_screen.dart';
-import 'package:kitap_okuma_app/screens/student_login_screen.dart'; // 👈 yeni eklendi
+import 'package:kitap_okuma_app/screens/student_login_screen.dart';
+import 'package:kitap_okuma_app/screens/register_screen.dart';  // <-- Burası eklendi
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -37,9 +37,32 @@ class KitapOkumaApp extends StatelessWidget {
         '/guest': (context) => const GuestScreen(),
         '/parent_dashboard': (context) => const ParentDashboardScreen(),
         '/teacher_dashboard': (context) => const TeacherDashboardScreen(),
-        '/student_login': (context) => const StudentLoginScreen(), // 👈 öğrenci girişi
-        '/student_dashboard': (context) => const StudentDashboardScreen(),
-        // Book ekranı yönlendirmesi için (parametreli geçişte gerekmez ama future-proof)
+        '/student_login': (context) => const StudentLoginScreen(),
+        '/register': (context) => const RegisterScreen(),  // <-- Burası eklendi
+      },
+      onGenerateRoute: (settings) {
+        if (settings.name == '/student_dashboard') {
+          final args = settings.arguments;
+          if (args is! Map<String, dynamic>) {
+            return MaterialPageRoute(
+              builder: (context) => const Scaffold(
+                body: Center(child: Text('Hata: Parametreler eksik veya yanlış türde!')),
+              ),
+            );
+          }
+          final studentId = args['studentId'];
+          if (studentId == null || studentId is! String) {
+            return MaterialPageRoute(
+              builder: (context) => const Scaffold(
+                body: Center(child: Text('Hata: studentId parametresi eksik veya geçersiz!')),
+              ),
+            );
+          }
+          return MaterialPageRoute(
+            builder: (context) => StudentDashboardScreen(studentId: studentId),
+          );
+        }
+        return null;
       },
     );
   }

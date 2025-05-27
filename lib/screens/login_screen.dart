@@ -15,13 +15,20 @@ class LoginScreen extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Image.asset('assets/images/login_logo.png', height: 150),
+                // Resim assets klasöründen çağrılıyor
+                Image.asset(
+                  'assets/images/login_logo.png',
+                  height: 150,
+                  errorBuilder: (context, error, stackTrace) {
+                    return const Icon(Icons.error, size: 150, color: Colors.red);
+                  },
+                ),
                 const SizedBox(height: 30),
                 _buildLoginButton(
                   context,
                   'ÖĞRENCİ',
                   Icons.child_care,
-                  onPressed: () => Navigator.pushNamed(context, '/student_login'), // 👈 değiştirildi
+                  onPressed: () => Navigator.pushNamed(context, '/student_login'),
                 ),
                 _buildLoginButton(
                   context,
@@ -41,6 +48,20 @@ class LoginScreen extends StatelessWidget {
                   Icons.explore,
                   onPressed: () => Navigator.pushNamed(context, '/guest'),
                 ),
+                const SizedBox(height: 20),
+                TextButton(
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/register');
+                  },
+                  child: const Text(
+                    'Kayıt Ol',
+                    style: TextStyle(
+                      color: Colors.blue,
+                      decoration: TextDecoration.underline,
+                      fontSize: 16,
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
@@ -49,7 +70,8 @@ class LoginScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildLoginButton(BuildContext context, String text, IconData icon, {required VoidCallback onPressed}) {
+  Widget _buildLoginButton(BuildContext context, String text, IconData icon,
+      {required VoidCallback onPressed}) {
     return Container(
       width: 250,
       margin: const EdgeInsets.symmetric(vertical: 8),
